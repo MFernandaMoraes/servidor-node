@@ -18,11 +18,11 @@ const server = http.createServer((req, res) => {
         return res.end('<h1>Lista de alunos </h1>');
     }
 
-    // Define o status HTTP como 200 (OK) e o tipo de conteúdo como texto plano em UTF-8
-    res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+    // Se nenhuma rota acima for satisfeita, cai no 404
+    res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
     
     // Envia a resposta para o navegador/cliente
-    res.end('<h1>Olá, alunos! O servidor Node.js está rodando com sucesso!\n</h1>');
+    res.end('<h1 style="color: red;">404 - rota não encontrada</h1>');
 
 });
 
