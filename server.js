@@ -18,6 +18,19 @@ connection.connect((err) => {
     }
 
     console.log('Conectado ao MySQL com sucesso!');
+
+    // Cria a tabela 'alunos', caso ela não exista
+    const createTableQuery = `CREATE TABLE IF NOT EXISTS alunos(
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(255) NOT NULL
+    )`;
+
+    connection.query(createTableQuery, (err) => {
+        if(err){
+            console.error('Erro ao criar tabela : ', err.stack);
+            return;
+        }
+    });
 });
 
 // Define o endereço (localhost) e a porta onde o servidor vai escutar
@@ -32,9 +45,21 @@ const server = http.createServer((req, res) => {
         return res.end('<h1>Página Inicial</h1>'); // O return impede a execução  das linhas seguintes
     }
 
-    if (req.url === '/alunos') {
+    if (req.url === '/alunos' && req.method === 'GET') {
+
+        connection.query('SELECT * FROM alunos;', (err, results) => {
+            if (err){
+                res.writeHead(500, {'Content-Type': 'text/html; charset=utf-8'});
+                res.end(JSON.stringify({erro: err.message}));
+                return;
+            }
+
+            res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+            res.end(JSON.stringify(results)); 
+        });
+
         res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        return res.end('<h1>Lista de alunos </h1>');
+        return res.end('<h1>Lista de alunos</h1>');
     }
 
     // Se nenhuma rota acima for satisfeita, cai no 404
