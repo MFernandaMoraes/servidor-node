@@ -1,7 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 
-const app = express;
+const app = express();
 const port = 3000;
 
 // Middleware para o Express entender JSON no corpo da requisição (req.body)
