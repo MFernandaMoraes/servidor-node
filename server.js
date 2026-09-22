@@ -1,8 +1,13 @@
 const express = require('express');
 const mysql = require('mysql2');
 
+const cors = require('cors');
+
 const app = express();
 const port = 3000;
+
+// Use o cors
+app.use(cors());
 
 // Middleware para o Express entender JSON no corpo da requisição (req.body)
 app.use(express.json());
