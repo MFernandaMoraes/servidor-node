@@ -1,6 +1,11 @@
-// Importa o módulo nativo 'http' do Node.js
-const http = require('http');
+const express = require('express');
 const mysql = require('mysql2');
+
+const app = express;
+const port = 3000;
+
+// Middleware para o Express entender JSON no corpo da requisição (req.body)
+app.use(express.json());
 
 // 1. Configura a conexão com o MySQL
 const connection = mysql.createConnection({
@@ -12,65 +17,35 @@ const connection = mysql.createConnection({
 
 // Conecta ao banco de dados
 connection.connect((err) => {
-    if(err){
-        console.error('Erro ao conectar ao MySQL: ', err.stack);
+    if (err) {
+        console.error('Erro ao conectar ao MySQL: ', err.stack );
         return;
     }
-
     console.log('Conectado ao MySQL com sucesso!');
 
-    // Cria a tabela 'alunos', caso ela não exista
-    const createTableQuery = `CREATE TABLE IF NOT EXISTS alunos(
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nome VARCHAR(255) NOT NULL
-    )`;
-
-    connection.query(createTableQuery, (err) => {
-        if(err){
-            console.error('Erro ao criar tabela : ', err.stack);
+    // Cria a tabela 'alunos'  caso ela não exista
+    const createTableQuery = `
+        CREATE TABLE IF NOT EXISTS alunos(
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL
+        )`;
+    connection.query( createTableQuery, (err) => {
+        if (err) {
+            console.error('Erro ao criar tabela: ', err.stack );
             return;
         }
+      } );
+});
+
+app.get('/alunos', (req, res) => {
+    connection.query('SELECT * FROM alunos', (err, results) => {
+        if(err){
+            return res.status(500).json({ erro: 'Erro ao buscar alunos'});
+        }
+        res.json(results);
     });
 });
 
-// Define o endereço (localhost) e a porta onde o servidor vai escutar
-const hostname = '127.0.0.1';
-const port = 3000;
-
-// Cria o servidor web
-const server = http.createServer((req, res) => {
-
-    if (req.url === '/') {
-        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        return res.end('<h1>Página Inicial</h1>'); // O return impede a execução  das linhas seguintes
-    }
-
-    if (req.url === '/alunos' && req.method === 'GET') {
-
-        connection.query('SELECT * FROM alunos;', (err, results) => {
-            if (err){
-                res.writeHead(500, {'Content-Type': 'text/html; charset=utf-8'});
-                res.end(JSON.stringify({erro: err.message}));
-                return;
-            }
-
-            res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-            res.end(JSON.stringify(results)); 
-        });
-
-        res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-        return res.end('<h1>Lista de alunos</h1>');
-    }
-
-    // Se nenhuma rota acima for satisfeita, cai no 404
-    res.writeHead(404, {'Content-Type': 'text/html; charset=utf-8'});
-    
-    // Envia a resposta para o navegador/cliente
-    res.end('<h1 style="color: red;">404 - rota não encontrada</h1>');
-
-});
-
-// Faz o servidor começar a escutar na porta definida
-server.listen(port, hostname, () => {
-  console.log(`Servidor rodando em http://${hostname}:${port}/`);
+app.listen(port, () => {
+    console.log(`Servidor rodando em http://localhost:${port}/`);
 });
