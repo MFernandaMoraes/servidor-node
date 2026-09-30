@@ -17,7 +17,7 @@ const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'petshoppessego'
+    database: 'auraBoutique'
 });
 
 // Conecta ao banco de dados
@@ -30,10 +30,16 @@ connection.connect((err) => {
 
     // Cria a tabela 'alunos'  caso ela não exista
     const createTableQuery = `
-        CREATE TABLE IF NOT EXISTS alunos(
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nome VARCHAR(255) NOT NULL
+        CREATE TABLE IF NOT EXISTS cliente(
+            id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL UNIQUE,
+            telefone VARCHAR(20) NOT NULL,
+            senha VARCHAR(255) NOT NULL,
+            id_loja INT DEFAULT 1,
+            id_estilo_preferido INT NULL
         )`;
+        
     connection.query( createTableQuery, (err) => {
         if (err) {
             console.error('Erro ao criar tabela: ', err.stack );
